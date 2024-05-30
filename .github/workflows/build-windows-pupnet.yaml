@@ -100,11 +100,6 @@ jobs:
           dotnet pack -c Release -o . -p:Version=0.0.0-nma
           dotnet tool install --global --add-source . KuiperZone.PupNet --version 0.0.0-nma
 
-      - name: Download CodeSignTool
-        id: downloadCodeSignTool
-        shell: pwsh
-        run: ./scripts/download-codesigntool.ps1
-
       - name: Create Archive
         if: inputs.BuildArchive == true
         working-directory: ${{ steps.transformInputs.outputs.projectDir }}
@@ -121,18 +116,6 @@ jobs:
         if: inputs.BuildInnoSetup == true
         working-directory: ${{ steps.transformInputs.outputs.projectDir }}
         run: pupnet -y -v ${{ inputs.AppVersion }} -k Setup -p DefineConstants=INSTALLATION_METHOD_INNO_SETUP
-        env:
-          SignExecutable: ${{ inputs.SignExecutable }}
-          CodeSignToolDir: ${{ steps.downloadCodeSignTool.outputs.codeSignToolDir }}
-          ES_USERNAME: ${{ secrets.ES_USERNAME }}
-          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
-          ES_CREDENTIAL_ID: ${{ secrets.ES_CREDENTIAL_ID }}
-          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
-
-      - name: Sign Setup
-        if: inputs.BuildInnoSetup == true && inputs.SignExecutable == true
-        working-directory: ${{ steps.transformInputs.outputs.projectDir }}
-        run: ../../scripts/sign.ps1 Deploy/OUT
         env:
           SignExecutable: ${{ inputs.SignExecutable }}
           CodeSignToolDir: ${{ steps.downloadCodeSignTool.outputs.codeSignToolDir }}
